@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Waste Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Rictei Smart City
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="report.html">Report Waste</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Smart Waste Management System</h1>
+      <p>IoT-enabled municipal services connecting citizens, administrators, and waste collectors for a cleaner, greener city. Report full bins, track collections, and improve environmental outcomes—all in one platform.</p>
+      <div class="hero-cta-buttons">
+        <a href="#how-it-works" class="btn btn-hero-outline">How It Works</a>
+        <a href="report.html" class="btn btn-hero-primary">Report Waste Now</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="how-it-works" class="landing-section">
+      <h2>How It Works</h2>
+      <p>The system operates in three simple stages. Understanding this flow helps everyone—citizens, admins, and collectors—know what to expect and when.</p>
+
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <h4>Citizen Reports</h4>
+          <p>Residents submit waste reports via the Report Waste form. They provide location, waste type (plastic, organic, metal, mixed), and fill level. Reports enter the system as <strong>pending</strong>.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <h4>Admin Approves</h4>
+          <p>Administrators log in and review pending reports. They can approve or reject each one. Approved reports are marked as <strong>approved</strong> and automatically sent to collectors as new assignments.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <h4>Collector Responds</h4>
+          <p>Waste collectors see approved reports as notifications. They visit the location, complete the collection, and mark it as <strong>collected</strong>. The report is then closed and recorded.</p>
+        </div>
+      </div>
+
+      <p>This end-to-end process ensures no report is lost, responsibilities are clear, and the public can trust that their reports lead to action.</p>
+    </section>
+
+    <section class="landing-section">
+      <h2>For Citizens</h2>
+      <p>If you notice a full bin, overflowing waste, or illegal dumping in your area, you can report it in minutes. Your report includes your name, the exact location (street, landmark, or area), the type of waste, and how full the bin is. Once submitted, the report is reviewed by municipal staff. There is no need to call or visit an office—everything happens online.</p>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        </div>
+        <div>
+          <h3>Report Waste</h3>
+          <p>Use the Report Waste page to submit a new report. Fill in the location, waste type, and fill level. Your report is stored securely and forwarded to the administration team for review. You can submit multiple reports if you see several issues in different areas.</p>
+          <a href="report.html" class="btn btn-primary">Submit a Report</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <h2>For Administrators</h2>
+      <p>Administrators manage the full lifecycle of waste reports. After logging in with admin credentials, the admin dashboard shows total reports, pending items awaiting approval, approved reports sent to collectors, and completed collections. Administrators can review each pending report and decide whether to approve it (sending it to collectors) or reject it (e.g., duplicate or invalid). The dashboard also includes a Smart Bin status overview for quick visibility of bin fill levels and priorities.</p>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        </div>
+        <div>
+          <h3>Admin Dashboard</h3>
+          <p>Access the admin dashboard to approve or reject pending waste reports. Approved reports are automatically notified to collectors. You can monitor collection progress and Smart Bin status from a single interface.</p>
+          <a href="login.html" class="btn btn-primary">Admin Login</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <h2>For Waste Collectors</h2>
+      <p>Waste collectors receive assignments only after an administrator approves a report. Once logged in with collector credentials, the collector dashboard shows a notification banner when new approved reports are available. Each assignment includes the report ID, location, waste type, and fill level. Collectors can mark each assignment as collected when the job is done. Completed collections appear in a separate list for record-keeping.</p>
+
+      <div class="landing-feature">
+        <div class="landing-feature-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        </div>
+        <div>
+          <h3>Collector Dashboard</h3>
+          <p>View approved collection assignments and notifications. Mark each assignment as collected when finished. The system keeps a history of completed collections for accountability and reporting.</p>
+          <a href="login.html" class="btn btn-primary">Collector Login</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <h2>Benefits & Impact</h2>
+      <p>The Smart Waste Management System delivers tangible benefits for municipalities and residents:</p>
+      <ul class="landing-list">
+        <li><strong>Faster response:</strong> Reports are processed quickly, and collectors receive clear, approved assignments.</li>
+        <li><strong>Transparency:</strong> Every report follows a visible path from submission to completion.</li>
+        <li><strong>Better planning:</strong> Admins can see trends in reports and bin status to optimize routes and resources.</li>
+        <li><strong>Community engagement:</strong> Citizens contribute directly to cleaner streets by reporting issues.</li>
+        <li><strong>Eco-friendly focus:</strong> The system supports waste reduction and cleaner environments.</li>
+      </ul>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-cta">
+        <h2>Get Started</h2>
+        <p>Report a waste issue, or sign in as staff to manage reports and collections.</p>
+        <div class="landing-cta-buttons">
+          <a href="report.html" class="btn">Report Waste</a>
+          <a href="login.html" class="btn">Staff Login</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="card-grid">
+        <a href="report.html" class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          </div>
+          <h2>Report Waste</h2>
+          <p>Notify the municipality about full bins or illegal dumping. Help keep our streets clean.</p>
+        </a>
+
+        <a href="login.html" class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <h2>Staff Login</h2>
+          <p>Admin and collector portal. Sign in to access your dashboard and manage operations.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="landing-section landing-intro">
+      <h2>About the System</h2>
+      <p>The Rictei Smart Waste Management System is a unified digital platform designed for municipal governments to manage waste reports, streamline collection workflows, and keep communities clean. Citizens can report overflowing bins or illegal dumping; administrators review and approve requests; and waste collectors receive assignments in real time—creating a transparent, efficient loop from report to resolution.</p>
+      <p>Built with an eco-friendly focus, the system helps reduce street litter, optimize collection routes, and support sustainability goals. It runs securely in the cloud and works on phones, tablets, and laptops—accessible wherever you are.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Rictei Municipal Government — Smart City Waste Management</p>
+  </footer>
+
+</body>
+</html>

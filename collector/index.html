@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collector Dashboard — Rictei Smart Waste</title>
+  <link rel="stylesheet" href="../style.css">
+  <!-- Leaflet Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <nav class="nav nav-collector">
+    <a href="../index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Rictei Smart City
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../report.html">Report Waste</a></li>
+      <li><a href="index.html" class="active">Collector</a></li>
+      <li><a href="#" id="logout-link" style="color: rgba(255,255,255,0.9);">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h1 class="page-title">Collector Dashboard</h1>
+    <p class="page-subtitle">You receive approved waste reports from the admin. Complete collections below.</p>
+
+    <div class="notification-banner" id="notification-banner" style="display: none;">
+      <span class="notification-icon">✓</span>
+      <span>Admin has approved new waste reports. See assignments below.</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="card stat-card">
+        <h3>Assigned</h3>
+        <span class="card-value" id="stat-assigned">0</span>
+        <p>Approved by admin</p>
+      </div>
+      <div class="card stat-card">
+        <h3>Completed</h3>
+        <span class="card-value" id="stat-completed">0</span>
+        <p>Collected today</p>
+      </div>
+      <div class="card stat-card">
+        <h3>Urgent</h3>
+        <span class="card-value" id="stat-urgent">0</span>
+        <p>Fill level ≥ 80%</p>
+      </div>
+      <div class="card stat-card">
+        <h3>Total Collected</h3>
+        <span class="card-value" id="stat-total-collected">0</span>
+        <p>All time</p>
+      </div>
+    </div>
+
+    <!-- Map View Toggle -->
+    <div class="map-controls" style="margin-bottom: 1rem;">
+      <button type="button" class="btn btn-primary" id="btn-show-map">🗺️ View on Map</button>
+      <button type="button" class="btn" id="btn-calculate-route" style="display: none;">📍 Calculate Route</button>
+      <button type="button" class="btn" id="btn-clear-route" style="display: none;">Clear Route</button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="collection-map-container" class="map-container" style="display: none; margin-bottom: 1.5rem;">
+      <div id="collection-map" class="collector-map"></div>
+      <div class="map-info-text">
+        <span>📍 Your location (blue) = start point | Report markers = collection stops | "Calculate Route" = optimized path from you</span>
+      </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="reports-filters" style="margin-bottom: 1.5rem;">
+      <div class="filter-group">
+        <input type="text" id="collector-search" class="search-input" placeholder="Search by ID, location..." style="max-width: 400px; width: 100%;">
+        <select id="collector-sort" class="sort-select" style="margin-left: 1rem; width: 100%;">
+          <option value="newest">Sort: Newest first</option>
+          <option value="oldest">Sort: Oldest first</option>
+          <option value="fill-high">Sort: High fill level</option>
+          <option value="location">Sort: By location</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Assigned Reports Table -->
+    <section class="report-section">
+      <h3>Approved Collection Assignments</h3>
+      <div class="reports-table-wrap">
+        <table id="assigned-table" class="reports-table">
+          <thead>
+            <tr>
+              <th>Report ID</th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Fill Level</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="assigned-list"></tbody>
+        </table>
+        <p id="assigned-empty" class="empty-state" style="display: none;">No approved reports yet. Admin must approve reports first.</p>
+      </div>
+    </section>
+
+    <!-- Recently Collected Table -->
+    <section class="report-section" style="margin-top: 1.5rem;">
+      <h3>Recently Collected</h3>
+      <div class="reports-table-wrap">
+        <table id="collected-table" class="reports-table">
+          <thead>
+            <tr>
+              <th>Report ID</th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Collected</th>
+            </tr>
+          </thead>
+          <tbody id="collected-list"></tbody>
+        </table>
+        <p id="collected-empty" class="empty-state" style="display: none;">No completed collections.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Rictei Municipal Government — Smart City Waste Management</p>
+  </footer>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Route protection - Collector only
+    (function() {
+      if (!WasteData.requireAuth('collector')) {
+        alert('Access denied. Collector login required.');
+        window.location.href = '../login.html';
+        return;
+      }
+      
+      // Show current user and logout
+      var session = WasteData.getSession();
+      if (session) {
+        var logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+          logoutLink.textContent = 'Logout (' + session.username + ')';
+          logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+              WasteData.clearSession();
+              window.location.href = '../login.html';
+            }
+          });
+        }
+      }
+    })();
+  </script>
+  <script src="collector.js"></script>
+
+</body>
+</html>

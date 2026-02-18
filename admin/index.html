@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Rictei Smart Waste</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <nav class="nav nav-admin">
+    <a href="../index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Rictei Smart City
+    </a>
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../report.html">Report Waste</a></li>
+      <li><a href="index.html" class="active">Admin</a></li>
+      <li><a href="#" id="logout-link" style="color: rgba(255,255,255,0.9);">Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="admin-layout">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <h2 class="sidebar-title">Admin</h2>
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-panel="dashboard">
+          <span class="sidebar-icon">📊</span> Dashboard
+        </a>
+        <a href="#" class="sidebar-link" data-panel="pending">
+          <span class="sidebar-icon">⏳</span> Pending Reports
+        </a>
+        <a href="#" class="sidebar-link" data-panel="add-drive">
+          <span class="sidebar-icon">➕</span> Add New Drive
+        </a>
+        <a href="#" class="sidebar-link" data-panel="heatmap">
+          <span class="sidebar-icon">🗺️</span> Heat Map
+        </a>
+        <a href="#" class="sidebar-link" data-panel="all-reports">
+          <span class="sidebar-icon">📋</span> All Reports
+        </a>
+        <a href="#" class="sidebar-link" data-panel="collectors">
+          <span class="sidebar-icon">👷</span> Collectors
+        </a>
+        <a href="#" class="sidebar-link sidebar-logout" id="sidebar-logout">
+          <span class="sidebar-icon">🚪</span> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <!-- Dashboard panel -->
+      <section id="panel-dashboard" class="admin-panel active">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of waste reports and system status.</p>
+        
+        <!-- Main Statistics -->
+        <div class="stats-row">
+          <div class="card stat-card">
+            <h3>Total Reports</h3>
+            <span class="card-value" id="stat-total">0</span>
+            <p>All time</p>
+          </div>
+          <div class="card stat-card stat-card-pending">
+            <h3>Pending</h3>
+            <span class="card-value" id="stat-pending">0</span>
+            <p>Awaiting approval</p>
+            <a href="#" class="stat-link" data-panel="pending">Review now →</a>
+          </div>
+          <div class="card stat-card stat-card-approved">
+            <h3>Approved</h3>
+            <span class="card-value" id="stat-approved">0</span>
+            <p>Sent to collectors</p>
+          </div>
+          <div class="card stat-card stat-card-collected">
+            <h3>Collected</h3>
+            <span class="card-value" id="stat-collected">0</span>
+            <p>Completed</p>
+          </div>
+        </div>
+
+        <!-- Secondary Stats -->
+        <div class="stats-row" style="margin-top: 1rem;">
+          <div class="card stat-card">
+            <h3>Urgent Reports</h3>
+            <span class="card-value" id="stat-urgent">0</span>
+            <p>Fill level ≥ 80%</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Active Collectors</h3>
+            <span class="card-value" id="stat-collectors">0</span>
+            <p>Registered</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Collection Rate</h3>
+            <span class="card-value" id="stat-rate">0%</span>
+            <p>Completed / Total</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Today's Activity</h3>
+            <span class="card-value" id="stat-today">0</span>
+            <p>Reports created</p>
+          </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="dashboard-section" style="margin-top: 1.5rem;">
+          <h2 style="margin: 0 0 1rem; font-size: 1.1rem; color: var(--text);">Report Status Overview</h2>
+          <div class="progress-overview">
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Pending</span>
+                <span id="progress-pending-count">0</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill progress-pending" id="progress-pending-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Approved</span>
+                <span id="progress-approved-count">0</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill progress-approved" id="progress-approved-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Collected</span>
+                <span id="progress-collected-count">0</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill progress-collected" id="progress-collected-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Recent Activity -->
+        <div class="dashboard-grid" style="margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <!-- Quick Actions -->
+          <div class="dashboard-card">
+            <h2 style="margin: 0 0 1rem; font-size: 1.1rem; color: var(--text);">Quick Actions</h2>
+            <div class="quick-actions">
+              <a href="#" class="quick-action-btn" data-panel="pending">
+                <span class="action-icon">⏳</span>
+                <span>Review Pending Reports</span>
+                <span class="action-badge" id="quick-pending-count">0</span>
+              </a>
+              <a href="#" class="quick-action-btn" data-panel="add-drive">
+                <span class="action-icon">➕</span>
+                <span>Add New Drive</span>
+              </a>
+              <a href="#" class="quick-action-btn" data-panel="collectors">
+                <span class="action-icon">👷</span>
+                <span>Manage Collectors</span>
+              </a>
+              <a href="#" class="quick-action-btn" data-panel="heatmap">
+                <span class="action-icon">🗺️</span>
+                <span>View Heat Map</span>
+              </a>
+              <a href="#" class="quick-action-btn" data-panel="all-reports">
+                <span class="action-icon">📋</span>
+                <span>View All Reports</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="dashboard-card">
+            <h2 style="margin: 0 0 1rem; font-size: 1.1rem; color: var(--text);">Recent Activity</h2>
+            <div id="recent-activity-list" class="activity-list">
+              <p class="empty-state">No recent activity.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Pending Reports Preview -->
+        <div class="dashboard-section" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="margin: 0; font-size: 1.1rem; color: var(--text);">Recent Pending Reports</h2>
+            <a href="#" class="btn btn-sm btn-primary" data-panel="pending">View All →</a>
+          </div>
+          <div id="dashboard-pending-preview" class="pending-preview-list"></div>
+        </div>
+      </section>
+
+      <!-- Pending Reports panel -->
+      <section id="panel-pending" class="admin-panel">
+        <h1 class="page-title">Pending Reports</h1>
+        <p class="page-subtitle">Review and approve or reject reports before they go to collectors.</p>
+        
+        <!-- Statistics -->
+        <div class="stats-row" style="margin-bottom: 1.5rem;">
+          <div class="card stat-card">
+            <h3>Pending</h3>
+            <span class="card-value" id="pending-stat-count">0</span>
+            <p>Awaiting review</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Urgent</h3>
+            <span class="card-value" id="pending-stat-urgent">0</span>
+            <p>Fill level ≥ 80%</p>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="reports-filters" style="margin-bottom: 1.5rem;">
+          <div class="filter-group">
+            <input type="text" id="pending-search" class="search-input" placeholder="Search by ID, name, or location..." style="max-width: 400px;">
+            <select id="pending-sort" class="sort-select" style="margin-left: 1rem;">
+              <option value="newest">Sort: Newest first</option>
+              <option value="oldest">Sort: Oldest first</option>
+              <option value="fill-high">Sort: High fill level</option>
+              <option value="fill-low">Sort: Low fill level</option>
+            </select>
+          </div>
+          <div class="filter-group" style="margin-top: 1rem;">
+            <label style="font-weight: 600; margin-right: 0.75rem; color: var(--text);">Bulk actions:</label>
+            <button type="button" class="btn btn-primary" id="btn-select-all-pending">Select All</button>
+            <button type="button" class="btn btn-approve" id="btn-bulk-approve" style="margin-left: 0.5rem;">Approve Selected</button>
+            <button type="button" class="btn btn-reject" id="btn-bulk-reject" style="margin-left: 0.5rem;">Reject Selected</button>
+          </div>
+        </div>
+
+        <!-- Pending Reports Table -->
+        <div class="report-section">
+          <div class="reports-table-wrap">
+            <table id="pending-table" class="reports-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;"><input type="checkbox" id="pending-select-all"></th>
+                  <th>Report ID</th>
+                  <th>Reporter</th>
+                  <th>Location</th>
+                  <th>Type</th>
+                  <th>Fill Level</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pending-list"></tbody>
+            </table>
+            <p id="pending-empty" class="empty-state" style="display: none;">No pending reports. <a href="../report.html">Submit a report</a> to test the flow.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Add New Drive panel -->
+      <section id="panel-add-drive" class="admin-panel">
+        <h1 class="page-title">Add New Drive</h1>
+        <p class="page-subtitle">Schedule a new collection drive or route.</p>
+        <div class="form-card" style="max-width: 520px;">
+          <form id="add-drive-form">
+            <div class="form-group">
+              <label for="drive-name">Drive name</label>
+              <input type="text" id="drive-name" placeholder="e.g. North Zone Weekly" required>
+            </div>
+            <div class="form-group">
+              <label for="drive-zone">Zone / Area</label>
+              <input type="text" id="drive-zone" placeholder="e.g. North District, Block A">
+            </div>
+            <div class="form-group">
+              <label for="drive-schedule">Schedule</label>
+              <select id="drive-schedule">
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Bi-weekly</option>
+                <option value="daily">Daily</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="drive-collector">Assigned collector</label>
+              <select id="drive-collector">
+                <option value="">— Select —</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create drive</button>
+          </form>
+          <p id="drive-message" class="form-message" style="display:none; margin-top:1rem;"></p>
+        </div>
+      </section>
+
+      <!-- Heat Map panel -->
+      <section id="panel-heatmap" class="admin-panel">
+        <h1 class="page-title">Report Heat Map - Tharaka Nithi County</h1>
+        <p class="page-subtitle">Visual heat map showing areas with the most waste reports. Red zones indicate high reporting activity.</p>
+        
+        <!-- Map Container -->
+        <div class="heatmap-card" style="margin-bottom: 1.5rem;">
+          <div id="heatmap-map" style="height: 500px; border-radius: var(--radius-sm); overflow: hidden; background: #e8f5e9;"></div>
+          <div class="heatmap-legend" style="margin-top: 1rem;">
+            <span>Low Activity</span>
+            <div class="heatmap-legend-bar" style="background: linear-gradient(to right, #ffebee 0%, #ffcdd2 25%, #ef9a9a 50%, #e57373 75%, #c0392b 100%);"></div>
+            <span>High Activity (Red Zones)</span>
+            <span style="margin-left: 1rem; font-size: 0.85rem; color: var(--text-muted);">Red areas = Most reported locations</span>
+          </div>
+          <p id="heatmap-empty" class="empty-state" style="display:none; margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-sm);">No reports yet. Reports will appear here as citizens submit waste reports. The map shows Tharaka Nithi County boundaries.</p>
+        </div>
+
+        <!-- Management Plan Section -->
+        <div class="management-plan-section">
+          <h2 style="margin: 0 0 1rem; font-size: 1.25rem; color: var(--text);">Management Plan & Insights</h2>
+          <div id="management-plan-content" class="plan-cards-grid"></div>
+        </div>
+      </section>
+
+      <!-- All Reports panel -->
+      <section id="panel-all-reports" class="admin-panel">
+        <h1 class="page-title">All Reports</h1>
+        <p class="page-subtitle">Full list of waste reports (all statuses).</p>
+        
+        <!-- Statistics Summary -->
+        <div class="stats-row" style="margin-bottom: 1.5rem;">
+          <div class="card stat-card">
+            <h3>Total</h3>
+            <span class="card-value" id="all-reports-total">0</span>
+            <p>All reports</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Pending</h3>
+            <span class="card-value" id="all-reports-pending">0</span>
+            <p>Awaiting approval</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Approved</h3>
+            <span class="card-value" id="all-reports-approved">0</span>
+            <p>Sent to collectors</p>
+          </div>
+          <div class="card stat-card">
+            <h3>Collected</h3>
+            <span class="card-value" id="all-reports-collected">0</span>
+            <p>Completed</p>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="reports-filters" style="margin-bottom: 1.5rem;">
+          <div class="filter-group">
+            <label style="font-weight: 600; margin-right: 0.75rem; color: var(--text);">Filter by status:</label>
+            <div class="status-filter-buttons">
+              <button type="button" class="btn-filter active" data-filter="all">All</button>
+              <button type="button" class="btn-filter" data-filter="pending">Pending</button>
+              <button type="button" class="btn-filter" data-filter="approved">Approved</button>
+              <button type="button" class="btn-filter" data-filter="collected">Collected</button>
+            </div>
+          </div>
+          <div class="filter-group" style="margin-top: 1rem;">
+            <input type="text" id="reports-search" class="search-input" placeholder="Search by ID, name, or location..." style="max-width: 400px;">
+            <select id="reports-sort" class="sort-select" style="margin-left: 1rem;">
+              <option value="newest">Sort: Newest first</option>
+              <option value="oldest">Sort: Oldest first</option>
+              <option value="status">Sort: By status</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="report-section">
+          <div class="reports-table-wrap">
+            <table id="reports-table" class="reports-table">
+              <thead>
+                <tr>
+                  <th>Report ID</th>
+                  <th>Reporter</th>
+                  <th>Location</th>
+                  <th>Type</th>
+                  <th>Fill Level</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="all-reports-list"></tbody>
+            </table>
+            <p id="all-reports-empty" class="empty-state" style="display: none;">No reports found.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Report Details Modal -->
+      <div id="report-details-modal" class="modal is-hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Report Details</h2>
+            <button type="button" class="modal-close" id="modal-close-btn">&times;</button>
+          </div>
+          <div class="modal-body" id="report-details-content"></div>
+        </div>
+      </div>
+
+      <!-- Collectors panel -->
+      <section id="panel-collectors" class="admin-panel">
+        <h1 class="page-title">Collectors</h1>
+        <p class="page-subtitle">Add and manage collector accounts.</p>
+        <p style="margin-bottom: 1rem;">
+          <button type="button" class="btn btn-primary" id="btn-show-add-collector">Add new collector</button>
+        </p>
+        <div id="add-collector-form-wrap" class="modal-backdrop is-hidden" aria-hidden="true">
+          <div class="modal-dialog" role="dialog" aria-labelledby="add-collector-title">
+            <button type="button" class="modal-close" id="btn-close-add-collector" aria-label="Close">&times;</button>
+            <div class="form-card collectors-form">
+              <h3 id="add-collector-title" style="margin: 0 0 1rem;">Add new collector</h3>
+              <form id="add-collector-form">
+                <div class="form-group">
+                  <label for="collector-username">Username</label>
+                  <input type="text" id="collector-username" placeholder="e.g. john_collector" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label for="collector-password">Password</label>
+                  <input type="password" id="collector-password" placeholder="Choose a password" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                  <label for="collector-password-confirm">Confirm password</label>
+                  <input type="password" id="collector-password-confirm" placeholder="Repeat password" required autocomplete="new-password">
+                </div>
+                <p id="collector-message" class="form-message" style="display: none; margin-bottom: 1rem;"></p>
+                <button type="submit" class="btn btn-primary btn-block">Add collector</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="report-section">
+          <h3 style="margin: 0 0 1rem;">Registered collectors</h3>
+          <div class="collectors-table-wrap">
+            <table id="collectors-table" class="collectors-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="collectors-list"></tbody>
+            </table>
+            <p id="collectors-empty" class="empty-state" style="display: none;">No collectors registered. Click &quot;Add new collector&quot; to add one.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>© 2026 Rictei Municipal Government — Smart City Waste Management</p>
+  </footer>
+
+  <!-- Leaflet Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Route protection - Admin only
+    (function() {
+      if (!WasteData.requireAuth('admin')) {
+        alert('Access denied. Admin login required.');
+        window.location.href = '../login.html';
+        return;
+      }
+      
+      // Show current user and setup logout
+      var session = WasteData.getSession();
+      if (session) {
+        // Top nav logout
+        var logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+          logoutLink.textContent = 'Logout (' + session.username + ')';
+          logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+          });
+        }
+        // Sidebar logout
+        var sidebarLogout = document.getElementById('sidebar-logout');
+        if (sidebarLogout) {
+          sidebarLogout.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+          });
+        }
+      }
+      
+      function handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+          WasteData.clearSession();
+          window.location.href = '../login.html';
+        }
+      }
+      
+      // Hamburger menu toggle for mobile
+      var hamburgerBtn = document.getElementById('hamburger-btn');
+      var sidebar = document.getElementById('admin-sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      
+      function toggleSidebar() {
+        sidebar.classList.toggle('sidebar-open');
+        hamburgerBtn.classList.toggle('is-active');
+        overlay.classList.toggle('is-active');
+        document.body.classList.toggle('sidebar-open');
+      }
+      
+      function closeSidebar() {
+        sidebar.classList.remove('sidebar-open');
+        hamburgerBtn.classList.remove('is-active');
+        overlay.classList.remove('is-active');
+        document.body.classList.remove('sidebar-open');
+      }
+      
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleSidebar();
+        });
+      }
+      
+      if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+      }
+      
+      // Close sidebar when clicking on a sidebar link
+      var sidebarLinks = document.querySelectorAll('.sidebar-link');
+      sidebarLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+      
+      // Close sidebar on window resize if switching to desktop
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          closeSidebar();
+        }
+      });
+    })();
+  </script>
+  <script src="admin.js"></script>
+</body>
+</html>

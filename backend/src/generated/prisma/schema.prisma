@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Users (admin + collectors) ---
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(collector)
+  baseLat      Float?   @map("base_lat")
+  baseLng      Float?   @map("base_lng")
+  baseAddress  String?  @map("base_address")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+enum Role {
+  admin
+  collector
+}
+
+// --- Waste reports (pending → approved → collected) ---
+model Report {
+  id          String       @id
+  name        String?
+  location    String
+  wasteType   String?      @map("waste_type")
+  fillLevel   String?      @map("fill_level")
+  status      ReportStatus @default(pending)
+  lat         Float?
+  lng         Float?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  approvedAt  DateTime?    @map("approved_at")
+  collectedAt DateTime?    @map("collected_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+enum ReportStatus {
+  pending
+  approved
+  collected
+}

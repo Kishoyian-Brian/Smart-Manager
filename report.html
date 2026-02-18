@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Waste — Rictei Smart Waste</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Rictei Smart City
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="report.html" class="active">Report Waste</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <main class="report-page">
+    <header class="report-header">
+      <h1 class="page-title">Report Waste</h1>
+      <p class="report-intro">Report full bins or dumping so our team can respond quickly.</p>
+    </header>
+
+    <form class="form-card form" id="report-form">
+      <section class="form-section">
+        <div class="form-group">
+          <label for="name">Your name</label>
+          <input type="text" id="name" name="name" placeholder="Full name" required>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">Location</h3>
+        <div class="form-group">
+          <label for="location">Where is the issue?</label>
+          <div class="location-input-group">
+            <input type="text" id="location" name="location" placeholder="Street, area, or landmark" required>
+            <button type="button" class="btn btn-location" id="btn-location" title="Use my current location" aria-label="Use my current location">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+              Use my location
+            </button>
+          </div>
+          <span class="location-status" id="location-status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">Waste Details</h3>
+        <div class="form-group">
+          <label for="waste-type">Type</label>
+          <select id="waste-type" name="waste-type" required>
+            <option value="">Select type</option>
+            <option value="plastic">Plastic</option>
+            <option value="organic">Organic</option>
+            <option value="metal">Metal</option>
+            <option value="mixed">Mixed</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fill-level">Fill level</label>
+          <div class="range-group">
+            <input type="range" id="fill-level" name="fill-level" min="0" max="100" value="80" aria-describedby="fill-value">
+            <span class="range-value" id="fill-value">80%</span>
+          </div>
+        </div>
+      </section>
+
+      <button type="submit" class="btn btn-primary btn-block">Submit Report</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2026 Rictei Municipal Government — Smart City Waste Management</p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    var range = document.getElementById('fill-level');
+    var valueSpan = document.getElementById('fill-value');
+    if (range && valueSpan) {
+      range.addEventListener('input', function() { valueSpan.textContent = this.value + '%'; });
+    }
+    document.getElementById('btn-location').addEventListener('click', function() {
+      var input = document.getElementById('location');
+      var status = document.getElementById('location-status');
+      status.textContent = 'Locating…';
+      status.className = 'location-status';
+
+      if (!navigator.geolocation) {
+        status.textContent = 'Not supported. Enter address manually.';
+        status.className = 'location-status error';
+        return;
+      }
+
+      var geoOptions = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          input.dataset.lat = lat;
+          input.dataset.lng = lng;
+
+          fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=18&addressdetails=1', {
+            headers: { 'Accept': 'application/json' }
+          })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var addr = data.address || {};
+              var parts = [];
+              if (addr.road) parts.push(addr.road);
+              if (addr.suburb) parts.push(addr.suburb);
+              if (addr.neighbourhood) parts.push(addr.neighbourhood);
+              if (addr.town || addr.city || addr.village) parts.push(addr.town || addr.city || addr.village);
+              if (addr.display_name) {
+                input.value = parts.length ? parts.join(', ') : data.display_name;
+              } else {
+                input.value = lat.toFixed(5) + ', ' + lng.toFixed(5);
+              }
+              status.textContent = 'Location set.';
+              status.className = 'location-status success';
+            })
+            .catch(function() {
+              input.value = lat.toFixed(5) + ', ' + lng.toFixed(5);
+              status.textContent = 'Coordinates saved.';
+              status.className = 'location-status success';
+            });
+        },
+        function(err) {
+          var msg = 'Could not get location.';
+          if (err.code === 1) {
+            msg = 'Location denied. Allow location in your browser (click the lock/info icon in the address bar) or enter address manually.';
+          } else if (err.code === 2) {
+            msg = 'Location unavailable. Enter address manually.';
+          } else if (err.code === 3) {
+            msg = 'Request timed out. Try again or enter address manually.';
+          }
+          status.textContent = msg;
+          status.className = 'location-status error';
+        },
+        geoOptions
+      );
+    });
+
+    document.getElementById('report-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var report = {
+        name: document.getElementById('name').value,
+        location: document.getElementById('location').value,
+        wasteType: document.getElementById('waste-type').value,
+        fillLevel: parseInt(document.getElementById('fill-level').value, 10)
+      };
+      var lat = document.getElementById('location').dataset.lat;
+      var lng = document.getElementById('location').dataset.lng;
+      if (lat && lng) {
+        report.lat = parseFloat(lat);
+        report.lng = parseFloat(lng);
+      }
+      var btn = e.target.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+      WasteData.addReport(report).then(function() {
+        alert('Thank you. Your report has been submitted.');
+        window.location.href = 'index.html';
+      }).catch(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Report'; }
+        alert('Failed to submit: ' + (err.message || 'Please try again.'));
+      });
+    });
+  </script>
+
+</body>
+</html>

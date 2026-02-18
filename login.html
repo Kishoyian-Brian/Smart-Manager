@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Login — Rictei Smart Waste</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Rictei Smart City
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="report.html">Report Waste</a></li>
+      <li><a href="login.html" class="active">Login</a></li>
+    </ul>
+  </nav>
+
+  <main class="login-page">
+    <div class="form-card login-card">
+      <h2>Staff Login</h2>
+      <p class="subtitle">Sign in to access your dashboard</p>
+
+      <form class="form" id="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+        </div>
+        <p class="login-error" id="login-error"></p>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+
+      <p class="login-hint">Demo: admin / admin123 or collector / collector123</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Rictei Municipal Government — Smart City Waste Management</p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // Check if already logged in, redirect if so
+    (function() {
+      var session = WasteData.getSession();
+      if (session) {
+        if (session.role === 'admin') {
+          window.location.href = 'admin/index.html';
+        } else if (session.role === 'collector') {
+          window.location.href = 'collector/index.html';
+        }
+      }
+    })();
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value.trim();
+      var password = document.getElementById('password').value;
+      var errorEl = document.getElementById('login-error');
+      errorEl.style.display = 'none';
+
+      WasteData.authenticate(username, password).then(function(user) {
+        if (user) {
+          WasteData.setSession(user);
+          if (user.role === 'admin') {
+            window.location.href = 'admin/index.html';
+          } else {
+            window.location.href = 'collector/index.html';
+          }
+        } else {
+          errorEl.textContent = 'Invalid username or password. Please try again.';
+          errorEl.style.display = 'block';
+        }
+      }).catch(function(err) {
+        errorEl.textContent = err.message || 'Login failed. Please try again.';
+        errorEl.style.display = 'block';
+      });
+    });
+  </script>
+
+</body>
+</html>
