@@ -37,6 +37,7 @@
         <p class="login-error" id="login-error"></p>
         <button type="submit" class="btn btn-primary btn-block">Sign In</button>
       </form>
+      <!-- Removed demo credentials hint -->
     </div>
   </main>
 
@@ -47,6 +48,22 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script>
+    // Remove any demo credentials text if it exists
+    (function() {
+      // Remove any elements with login-hint class
+      var hints = document.querySelectorAll('.login-hint');
+      hints.forEach(function(el) { el.remove(); });
+      
+      // Remove any text containing demo credentials
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var node;
+      while (node = walker.nextNode()) {
+        if (node.textContent && /Demo.*admin.*admin123|admin.*\/.*admin123/i.test(node.textContent)) {
+          node.parentElement && node.parentElement.remove();
+        }
+      }
+    })();
+    
     // Check if already logged in, redirect if so
     (function() {
       var session = WasteData.getSession();
