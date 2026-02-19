@@ -462,6 +462,7 @@
       } else if (r.status === 'approved') {
         actionsHtml += '<button type="button" class="btn btn-sm btn-collect" data-id="' + escapeHtml(r.id) + '">Mark Collected</button>';
       }
+      actionsHtml += '<button type="button" class="btn btn-sm btn-delete" data-id="' + escapeHtml(r.id) + '" style="background: var(--status-urgent); color: white; margin-left: 0.25rem;">Delete</button>';
       tr.innerHTML =
         '<td><a href="#" class="report-id-link" data-id="' + escapeHtml(r.id) + '">#' + escapeHtml((r.id || '').slice(1, 9)) + '</a></td>' +
         '<td>' + escapeHtml(r.name || 'Anonymous') + '</td>' +
@@ -496,6 +497,13 @@
         WasteData.markCollected(btn.dataset.id).then(function(ok) { if (ok) render(); });
       });
     });
+    tbody.querySelectorAll('.btn-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to permanently delete this report? This action cannot be undone.')) {
+          WasteData.deleteReport(btn.dataset.id).then(function(ok) { if (ok) render(); });
+        }
+      });
+    });
   }
 
   async function showReportDetails(id) {
@@ -517,6 +525,7 @@
       '<div class="detail-actions" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">' +
       (report.status === 'pending' ? '<button type="button" class="btn btn-approve" data-id="' + escapeHtml(report.id) + '">Approve</button> <button type="button" class="btn btn-reject" data-id="' + escapeHtml(report.id) + '">Reject</button>' : '') +
       (report.status === 'approved' ? '<button type="button" class="btn btn-collect" data-id="' + escapeHtml(report.id) + '">Mark Collected</button>' : '') +
+      '<button type="button" class="btn btn-delete" data-id="' + escapeHtml(report.id) + '" style="background: var(--status-urgent); color: white; margin-left: 0.5rem;">Delete Report</button>' +
       '</div>';
     modal.classList.remove('is-hidden');
     content.querySelectorAll('.btn-approve').forEach(function(btn) {
@@ -538,6 +547,15 @@
         WasteData.markCollected(btn.dataset.id).then(function(ok) {
           if (ok) { modal.classList.add('is-hidden'); render(); }
         });
+      });
+    });
+    content.querySelectorAll('.btn-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to permanently delete this report? This action cannot be undone.')) {
+          WasteData.deleteReport(btn.dataset.id).then(function(ok) {
+            if (ok) { modal.classList.add('is-hidden'); render(); }
+          });
+        }
       });
     });
   }
@@ -611,6 +629,7 @@
           '<button type="button" class="btn btn-sm btn-view" data-id="' + escapeHtml(r.id) + '">View</button>' +
           '<button type="button" class="btn btn-sm btn-approve" data-id="' + escapeHtml(r.id) + '">Approve</button>' +
           '<button type="button" class="btn btn-sm btn-reject" data-id="' + escapeHtml(r.id) + '">Reject</button>' +
+          '<button type="button" class="btn btn-sm btn-delete" data-id="' + escapeHtml(r.id) + '" style="background: var(--status-urgent); color: white; margin-left: 0.25rem;">Delete</button>' +
         '</td>';
       tbody.appendChild(tr);
     });
@@ -630,6 +649,13 @@
     tbody.querySelectorAll('.btn-reject').forEach(function(btn) {
       btn.addEventListener('click', function() {
         WasteData.reject(btn.dataset.id).then(function(ok) { if (ok) render(); });
+      });
+    });
+    tbody.querySelectorAll('.btn-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to permanently delete this report? This action cannot be undone.')) {
+          WasteData.deleteReport(btn.dataset.id).then(function(ok) { if (ok) render(); });
+        }
       });
     });
     tbody.querySelectorAll('.pending-checkbox').forEach(function(cb) {
@@ -970,6 +996,27 @@
     });
   }
 
+  var btnBulkDelete = document.getElementById('btn-bulk-delete');
+  if (btnBulkDelete) {
+    btnBulkDelete.addEventListener('click', function() {
+      if (selectedPendingReports.length === 0) {
+        alert('Please select at least one report to delete.');
+        return;
+      }
+      if (!confirm('Are you sure you want to permanently delete ' + selectedPendingReports.length + ' report' + (selectedPendingReports.length !== 1 ? 's' : '') + '? This action cannot be undone.')) {
+        return;
+      }
+      var ids = selectedPendingReports.slice();
+      selectedPendingReports = [];
+      Promise.all(ids.map(function(id) { return WasteData.deleteReport(id); }))
+        .then(function(results) {
+          var deleted = results.filter(Boolean).length;
+          alert('Deleted ' + deleted + ' report' + (deleted !== 1 ? 's' : '') + '.');
+          render();
+        });
+    });
+  }
+
   // All Reports filters and search
   document.querySelectorAll('.btn-filter').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -979,6 +1026,22 @@
       renderAllReports().catch(function() {});
     });
   });
+
+  var btnClearAllReports = document.getElementById('btn-clear-all-reports');
+  if (btnClearAllReports) {
+    btnClearAllReports.addEventListener('click', function() {
+      if (!confirm('⚠️ WARNING: Are you sure you want to delete ALL reports from the database? This action cannot be undone and will remove all pending, approved, and collected reports.')) {
+        return;
+      }
+      if (!confirm('This is your last chance. Click OK to permanently delete all reports.')) {
+        return;
+      }
+      WasteData.clearAllReports().then(function() {
+        alert('All reports have been deleted.');
+        render();
+      });
+    });
+  }
 
   var reportsSearch = document.getElementById('reports-search');
   if (reportsSearch) {

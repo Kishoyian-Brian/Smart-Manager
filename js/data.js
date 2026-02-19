@@ -83,6 +83,17 @@
       }
       return false;
     },
+    deleteReport: function(id) {
+      // Delete report regardless of status (admin function)
+      var reports = this.getAll();
+      var idx = reports.findIndex(function(r) { return r.id === id; });
+      if (idx !== -1) {
+        reports.splice(idx, 1);
+        this.save(reports);
+        return true;
+      }
+      return false;
+    },
     markCollected: function(id) {
       var reports = this.getAll();
       var found = reports.find(function(r) { return r.id === id && r.status === 'approved'; });
@@ -156,6 +167,19 @@
       if (requiredRole && session.role !== requiredRole) {
         return false;
       }
+      return true;
+    },
+    // Clear all reports from database
+    clearAllReports: function() {
+      localStorage.removeItem(STORAGE_KEY);
+      return true;
+    },
+    // Clear all data (reports + users) - use with caution!
+    clearAllData: function() {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(USERS_KEY);
+      // Re-seed users after clearing
+      seedUsers();
       return true;
     }
   };
