@@ -307,19 +307,7 @@ WasteManagement/
 
 ## 🔑 Default Credentials
 
-**Demo Accounts** (seeded automatically):
-
-- **Admin**
-  - Username: `admin`
-  - Password: `admin123`
-  - Role: Administrator
-
-- **Collector**
-  - Username: `collector`
-  - Password: `collector123`
-  - Role: Collector
-
-⚠️ **Important**: Change these credentials in production! Edit `js/data.js` to modify default users.
+⚠️ **Important**: Change default credentials in production! Edit `js/data.js` to modify default users.
 
 ## 🗺️ Map Features
 

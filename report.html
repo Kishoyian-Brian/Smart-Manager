@@ -99,7 +99,12 @@
         return;
       }
 
-      var geoOptions = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+      // Use high accuracy GPS, not IP-based location
+      var geoOptions = { 
+        enableHighAccuracy: true,  // Use GPS, not IP-based location
+        timeout: 15000,            // Increased timeout for better accuracy
+        maximumAge: 0               // Don't use cached location
+      };
       navigator.geolocation.getCurrentPosition(
         function(pos) {
           var lat = pos.coords.latitude;
@@ -107,28 +112,57 @@
           input.dataset.lat = lat;
           input.dataset.lng = lng;
 
+          // Log coordinates for debugging
+          console.log('GPS Coordinates:', lat, lng);
+          
           fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=18&addressdetails=1', {
-            headers: { 'Accept': 'application/json' }
+            headers: { 'Accept': 'application/json', 'User-Agent': 'WasteManagementApp/1.0' }
           })
             .then(function(r) { return r.json(); })
             .then(function(data) {
+              console.log('Reverse geocoding result:', data);
               var addr = data.address || {};
+              
+              // Build address parts with priority order
               var parts = [];
-              if (addr.road) parts.push(addr.road);
-              if (addr.suburb) parts.push(addr.suburb);
-              if (addr.neighbourhood) parts.push(addr.neighbourhood);
-              if (addr.town || addr.city || addr.village) parts.push(addr.town || addr.city || addr.village);
-              if (addr.display_name) {
-                input.value = parts.length ? parts.join(', ') : data.display_name;
-              } else {
-                input.value = lat.toFixed(5) + ', ' + lng.toFixed(5);
+              
+              // Street/road level
+              if (addr.road || addr.pedestrian || addr.path) {
+                parts.push(addr.road || addr.pedestrian || addr.path);
               }
-              status.textContent = 'Location set.';
+              
+              // Neighborhood level
+              if (addr.neighbourhood) parts.push(addr.neighbourhood);
+              if (addr.suburb && addr.suburb !== addr.neighbourhood) parts.push(addr.suburb);
+              
+              // City/town level - prioritize more specific locations
+              if (addr.city_district) parts.push(addr.city_district);
+              if (addr.town && addr.town !== addr.city) parts.push(addr.town);
+              if (addr.city) parts.push(addr.city);
+              if (addr.village && !addr.city && !addr.town) parts.push(addr.village);
+              
+              // County/State level
+              if (addr.county) parts.push(addr.county);
+              
+              // Use the formatted address
+              if (parts.length > 0) {
+                input.value = parts.join(', ');
+                status.textContent = 'Location set: ' + parts[parts.length - 1] + ' (Coordinates: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ')';
+              } else if (data.display_name) {
+                // Fallback to full display name
+                input.value = data.display_name;
+                status.textContent = 'Location set (Coordinates: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ')';
+              } else {
+                // Last resort: show coordinates
+                input.value = lat.toFixed(5) + ', ' + lng.toFixed(5);
+                status.textContent = 'Coordinates saved. Please verify location.';
+              }
               status.className = 'location-status success';
             })
-            .catch(function() {
+            .catch(function(err) {
+              console.error('Geocoding error:', err);
               input.value = lat.toFixed(5) + ', ' + lng.toFixed(5);
-              status.textContent = 'Coordinates saved.';
+              status.textContent = 'Coordinates saved (' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '). Address lookup failed.';
               status.className = 'location-status success';
             });
         },
